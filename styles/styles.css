@@ -1,0 +1,49 @@
+html, body {
+	margin: 0;
+	padding: 0;
+}
+header {
+	width: 100vw;
+	height: 80px;
+	color: #FFF;
+	background-color: #000;
+	padding: 10px 30px;
+}
+.content {
+	max-width: 50vw;
+	margin: 0 auto;
+	padding: 50px 0;
+	color: #000;
+	background-color: #FFF;
+}
+#nav-buttons {
+	max-width: 50vw;
+	position: relative;
+}
+#nav-buttons .prev {
+	float: left;
+}
+#nav-buttons .next {
+	float: right;
+}
+.step-1, .step-2, .step-3, .step-4, .step-5, .step-6, #result.not-ready {
+	display: none;
+}
+.step-1.current, .step-2.current, .step-3.current, 
+.step-4.current, .step-5.current, .step-6.current, #result.ready {
+	display: block;
+}
+#submit {
+	margin: 10px 0 0 0;
+}
+#wrapupSubmit input {
+    display: block;
+    margin: 0 0 10px 0;
+}
+.response-label {
+	font-weight: 700;
+	text-transform: capitalize;
+}
+.response-value {
+	font-style: italic;
+}

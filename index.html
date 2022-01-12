@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta name="robots" content="noindex, nofollow">
+		<title>Dwellful Demo</title>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" id="jquery-js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" id="jqueryui-js"></script>
+		<script type="text/javascript" src="https://demos.assemblystudio.com/dwellfulapi/scripts.js" id="scripts-js"></script>
+		<link rel="stylesheet" id="styles-css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" type="text/css" media="all">
+		<link rel="stylesheet" id="styles-css" href="https://demos.assemblystudio.com/dwellfulapi/styles.css" type="text/css" media="all">
+	</head>
+	<body>
+		<header>
+			<h2>Dwellful API Demo</h2>
+		</header>
+		<div class="content">
+			<p>Answer each question below to get your rates &amp; agent match.</p>
+			<div id="navButtons">
+				<button class="prev">&#8592;</button>
+				<button class="next">&#8594;</button>
+			</div>
+			<div class="step-1 current" id="purchasePrice">
+				<h3>Established Purchase Price</h3>
+				<div class="button-wrap">
+					<div id="purchasePriceSlider"></div>
+					<h4 id="purchasePriceValue">$<span>50000</span></h4>
+					<button class="proceed">Next</button>
+				</div>
+			</div>
+			<div class="step-2" id="hasAgent">
+				<h3>Already working with a real estate agent?</h3>
+				<div class="button-wrap">
+					<button class="affirm">Yes</button>
+					<button class="reject">No</button>
+				</div>
+			</div>
+			<div class="step-3" id="propertyLocation">
+				<h3>Property Location</h3>
+				<div class="button-wrap">
+					<label for="zipcode">Enter ZIP Code:</label>
+					<input type="text" id="zipcode" name="zipcode" />
+					<button class="proceed">Next</button>
+				</div>
+			</div>
+			<div class="step-4" id="propertyType">
+				<h3>Property Type</h3>
+				<div class="button-wrap">
+					<input type="radio" id="single" name="homeType" value="Single-Family" />
+					<label for="single">Single Family</label>
+					<input type="radio" id="townhouse" name="homeType" value="Townhouse" />
+					<label for="townhouse">Townhouse</label>
+					<input type="radio" id="condominium" name="homeType" value="Condominium" />
+					<label for="condominium">Condo</label>
+					<input type="radio" id="other" name="homeType" value="Other" />
+					<label for="other">Other</label>
+				</div>
+			</div>
+			<div class="step-5" id="purchaseTimeline">
+				<h3>Timeline to purchase?</h3>
+				<div class="button-wrap">
+					<input type="radio" id="ASAP" name="timeline" value="ASAP" />
+					<label for="ASAP">ASAP</label>
+					<input type="radio" id="3to6mos" name="timeline" value="Within 3-6 months" />
+					<label for="3to6mos">Within 3-6 months</label>
+					<input type="radio" id="6to12mos" name="timeline" value="Within 6-12 months" />
+					<label for="6to12mos">Within 6-12 months</label>
+					<input type="radio" id="over12mos" name="timeline" value="More than 12 months out" />
+					<label for="over12mos">More than 12 months out</label>
+					<input type="radio" id="undecided" name="timeline" value="Undecided" />
+					<label for="undecided">Undecided</label>
+				</div>
+			</div>
+			<div class="step-6" id="wrapupSubmit">
+				<h3>Review your entries and click Submit to proceed.</h3>
+				<p>If any corrections are required, use the nav buttons above to return to that question and change your entry.</p>
+				<form id="summaryForm" method="post">
+					<label for="purchasePriceField">Purchase Price:</label>
+					<input type="text" name="purchasePriceField" id="purchasePriceField" readonly />
+					<label for="hasAgentField">Has Agent:</label>
+					<input type="text" name="hasAgentField" id="hasAgentField" readonly />
+					<label for="propertyLocationField">Where is property located?</label>
+					<input type="text" name="propertyLocationField" id="propertyLocationField" readonly />
+					<label for="propertyTypeField">Type of property:</label>
+					<input type="text" name="propertyTypeField" id="propertyTypeField" readonly />
+					<label for="timelineField">Purchase Timeline:</label>
+					<input type="text" name="timelineField" id="timelineField" readonly />
+					<input type="submit" name="submit" id="submit" />
+				</form>
+				<div id="result" class="not-ready"><h4>Response Received:</h4></div>
+			</div>
+		</div>
+	</body>
+</html>
