@@ -1,6 +1,8 @@
 //page load
 var validator = null;
 var didLT = false;
+var bShowAgentQuestion = false;
+var agentMatchToken = "";
 
 $(document).ready(function() {
     if (window.self !== window.top) { $(document.body).html(''); } //check for iframed
@@ -96,6 +98,9 @@ $(document).ready(function() {
             required: true
         },
         AGENT_FOUND: {
+            required: true
+        },
+        ACCEPT_MATCH: {
             required: true
         },
         TIMEFRAME: {
@@ -251,8 +256,40 @@ function preLoad(s) {
     }
     if (iStep >= 8) {
         //REFI: current home styles/selection already set
+        //PURCH: property type
+        var pt = $('#PROP_DESC').attr('data-preload');
+        $('#PROP_DESC').val(pt);
     }
     if (iStep >= 9) {
+        //PURCH: Found a home
+        var fh = $('#SPEC_HOME').attr('data-preload');
+        $('#SPEC_HOME').val(fh);
+        if (fh.toUpperCase() == 'YES') {
+            $('#shyes').addClass('sel');
+        } else {
+            $('#shno').addClass('sel');
+        }
+    }
+    if (iStep >= 10) {
+        //PURCH: Working with agent
+        var af = $('#AGENT_FOUND').attr('data-preload');
+        $('#AGENT_FOUND').val(af);
+        if (af.toUpperCase() == 'YES') {
+            $('#afyes').addClass('sel');
+        } else {
+            $('#afno').addClass('sel');
+        }
+        var am = $('#ACCEPT_MATCH').attr('data-preload');
+        $('#ACCEPT_MATCH').val(af);
+        if (af.toUpperCase() == 'YES') {
+            $('#matchyes').addClass('sel');
+        } else {
+            $('#matchno').addClass('sel');
+        }
+        var mt = $('MATCH_TOKEN').attr('data-preload');
+        $('#MATCH_TOKEN').val(mt);
+    }
+    if (iStep >= 11) {
         //REFI: self employed
         if ($('#SELF_EMPLOYED').val().toUpperCase() == 'YES') {
             $('#seyes').addClass('sel');
@@ -406,11 +443,26 @@ function AddHandlers()
     $('#afno').click(function() {
         $('#AGENT_FOUND').val('no');
         toggleSelectedBtn(['afno','afyes'],'afno');
-        continue_form(true);
+        queryDwellful();
+        setTimeout(function() {
+            if (!$('#matchresult').hasClass('ready')) {
+                continue_form(true);
+            }    
+        }, 1000);
     });
     $('#afyes').click(function() {
         $('#AGENT_FOUND').val('yes');
         toggleSelectedBtn(['afno','afyes'],'afyes');
+        continue_form(true);
+    });
+    $('#matchyes').click(function() {
+        $('#ACCEPT_MATCH').val('yes');
+        toggleSelectedBtn(['matchno','matchyes'],'matchyes');        
+        continue_form(true);
+    });
+    $('#matchno').click(function() {
+        $('#ACCEPT_MATCH').val('no');
+        toggleSelectedBtn(['matchno','matchyes'],'matchno');
         continue_form(true);
     });
     $('#seno').click(function() {
@@ -426,11 +478,13 @@ function AddHandlers()
     $('#shno').click(function() {
         $('#SPEC_HOME').val('no');
         toggleSelectedBtn(['shno','shyes'],'shno');
+        bShowAgentQuestion = true;
         continue_form(true);
     });
     $('#shyes').click(function() {
         $('#SPEC_HOME').val('yes');
         toggleSelectedBtn(['shno','shyes'],'shyes');
+        bShowAgentQuestion = false;
         continue_form(true);
     });
     $('#DOWN_PMT').change(function() {
@@ -451,6 +505,51 @@ function AddHandlers()
       $('#DOB').val(formatBirthday());
       UpdateElementStatus('DOB');
     });
+}
+
+function queryDwellful() {
+        // Translate property description into allowable strings, default to "Other"
+        // TODO: Current page offers Condo/Townhome as single choice, but API accepts "Condo" or "Townhome", using Condo for now
+        var rawPropType = $('#PROP_DESC').val();
+        var propType = "Other";
+        if (rawPropType == "single_fam") { propType = "Single-Family"; }
+        if (rawPropType == "condo") { propType = "Condominium"; }
+        
+        // Translate timeframe into allowable strings, default to "Undecided"
+        // TODO: Assuming "Offer pending" & "Signed Purch Agreement" will never be selected if Agent = No
+        // TODO: Current page has no option for "More than 12 months", but API accepts that as well as "Undecided", using Undecided for now
+        var rawTimeline = $('#TIMEFRAME').val();
+        var timeline = "Undecided";
+        if (rawTimeline == "TP1" || rawTimeline == "TP3") { timeline = "ASAP"; }
+        if (rawTimeline == "TP2") { timeline = "Within%203-6%20Months"; }
+        if (rawTimeline == "TP4") { timeline = "Within%206-12%20Months"; }
+
+        var reqData = "purchasePriceField="+$('#EST_VAL').val();
+        reqData += "&hasAgentField=false&propertyLocationField="+$('#PROP_ZIP').val();
+        reqData += "&propertyTypeField="+propType;
+        reqData += "&timelineField="+timeline;
+
+        $.ajax({
+            url: "callDwellfulQuery.php",
+            method: "POST",
+            data: reqData,
+            dataType: "json",
+            contentType: "application/x-www-form-urlencoded",
+            success: function(res) {
+                var response = res;
+                console.log(response);
+                if (response["message"].toLowerCase() == "qualified") {
+                    var newspan = $( "<span>" + response["broker"] + "</span>" );
+                    $("#brokername").append(newspan);
+                    $("#MATCH_TOKEN").val(response["match_token"]);
+                    $("#matchresult").removeClass("not_ready");
+                    $("#matchresult").addClass("ready");    
+                }
+            },
+            error: function(err) {
+                console.log(err);
+            }
+        });
 }
 
 function toggleSelectedBtn(arOffs, sOn) {
@@ -531,7 +630,6 @@ function submitForm()
     return tfa_submitForm(false);
 }
 
-
 var DIV_CURR = 0;
 var DIV_NEXT = 1;
 var STEP_FLD  = 2;
@@ -544,8 +642,10 @@ var LV_CHECK_STEPS = ['rq5', 'nh1'];
 var CONNECTING_STEP = 'rq11';
 var PRE_AUTH_STEP = 'rq3';
 var TIMEFRAME_STEP = 'nh9';
+var AGENT_FOUND_STEP = 'rqhp3';
+var SPEC_HOME_STEP = 'nh3';
 
-var BUTTON_STEPS = ['rq1a','rq4','rq5','nh1','nh9','rq8', 'rq10', 'rqcr', 'rqhp4', 'rqhp5', 'rqhp6','rqhp7','rqhp9'];
+var BUTTON_STEPS = ['rq1a','rq4','rq5','nh1','nh9','nh3','rqhp3','rq8', 'rq10', 'rqcr', 'rqhp4', 'rqhp5', 'rqhp6','rqhp7','rqhp9'];
 function showHideContinueButton( stepId ) {
     var sId = stepId.replace('#','');
     if (BUTTON_STEPS.includes(sId)) {
@@ -608,7 +708,9 @@ var NEWHOME_FORM_PATH = [
     ['rq4','nh1',['EST_VAL']],
     ['nh1','nh9',['DOWN_PMT']],
     ['nh9','rq3',['TIMEFRAME']],
-    ['rq3','rq11',['PROP_DESC']],
+    ['rq3','nh3',['PROP_DESC']],
+    ['nh3','rqhp3',['SPEC_HOME']],
+    ['rqhp3','rq11',['AGENT_FOUND']],
     ['rq11','rq8',['SELF_EMPLOYED']],
     ['rq8','rq9',['FNAME','LNAME']],
     //['rq10','rq9',['ADDRESS','CITY','STATE','ZIP']],
@@ -741,6 +843,10 @@ function goBack()
          CURR_STEP -= 1; //add one more to skip past costco question
       }
       //END CHECK FOR COSTCO SKIP
+      //ALSO CHECK FOR AGENT QUESTION SKIP
+      if (bShowAgentQuestion == false) {
+          CURR_STEP -= 1;
+      }
       continue_form(true);
    } else {
       CURR_STEP--;
@@ -1002,6 +1108,17 @@ function continue_form(bFromButton)
             $('#AGENT_FOUND').val(bHasAgent ? 'yes' : 'no');
         }
 
+        if (CURR_PATH[CURR_STEP][DIV_CURR] == SPEC_HOME_STEP) {
+            if (bShowAgentQuestion == false) {
+                // Skip the agent question if needed
+                CURR_STEP++;
+                nextDivId = '#'+CURR_PATH[CURR_STEP][DIV_NEXT];
+            }
+        }
+
+        if (CURR_PATH[CURR_STEP][DIV_CURR] == AGENT_FOUND_STEP) {
+
+        }
 
         if (CURR_PATH[CURR_STEP][DIV_CURR] == NAME_STEP) {
             if (!checkNames()) {
