@@ -16,6 +16,10 @@
 	$org_rate     = $fl->getCurrRate();
 	$org_employed = $fl->getSelfEmployed();
 	$org_timeframe = $fl->getTimeFrame();
+    $org_agentfound = $fl->getAgentFound();
+    $org_spechome = $fl->getSpecHome();
+    $org_acceptmatch = $fl->getAcceptMatch();
+    $org_matchtoken = $fl->getMatchToken();
 	$org_downpmt  = 0;
 	if ($fl->isPurch()) {
 	    $org_downpmt = $org_estval - $org_loanval;
@@ -34,8 +38,10 @@
                         if ($fl->hasLoanVal()) {  $STARTING_STEP++;
                             if ($fl->hasCurrRate() || $fl->isPurch()) {  $STARTING_STEP++;
                                 if ($fl->hasPropDesc()) {  $STARTING_STEP++;
-                                    if ($fl->hasSelfEmployed()) {  $STARTING_STEP++;
-    }}}}}}}}}
+                                    if ($fl->hasSpecHome()) { $STARTING_STEP++;
+                                        if ($fl->hasAgentFound()) { $STARTING_STEP++;
+                                            if ($fl->hasSelfEmployed()) {  $STARTING_STEP++;
+    }}}}}}}}}}}
 
     //load up the mobile detect
     include_once '../Mobile-Detect/Mobile_Detect.php';
@@ -68,6 +74,22 @@
        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(rza, s);
      })();
    </script>
+    <style type="text/css">
+        #matchresult.not_ready {
+            display: none;
+        }
+        #matchresult.ready {
+            display: block;
+        }
+        #brokername {
+            font-size: 30px;
+            color: #FFF;
+        }
+        #brokername > span {
+            display: block;
+            margin-bottom: 1em;
+        }
+    </style>
     <?php
         require_once dirname(__FILE__).DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'Mobile-Detect'.DIRECTORY_SEPARATOR.'Mobile_Detect.php';
         $detect = new Mobile_Detect();
@@ -527,14 +549,26 @@
                     <div class="form_ob">
                         <div class="form_text">Are you working with a real estate agent?</div>
                         <div class="form_element ctr">
-                            <div class="selbtn yesno" id="afno">
-                              <span>No</span>
-                            </div>
                             <div class="selbtn yesno" id="afyes">
                               <span>Yes</span>
                             </div>
+                            <div class="selbtn yesno" id="afno">
+                              <span>No</span>
+                            </div>
                             <div style="clear: both;"></div>
                             <div class="errbox"><label for="AGENT_FOUND" class="error" style="display: none;">Please select yes or no.</label></div>
+                        </div>
+                        <div id="matchresult" class="form_element ctr not_ready">
+                            <div id="brokername"><strong>Proposed agent for your purchase: </strong></div>
+                            <div class="form_text">Accept the proposed agent match?</div>
+                            <div class="selbtn yesno" id="matchyes">
+                              <span>Yes</span>
+                            </div>
+                            <div class="selbtn yesno" id="matchno">
+                              <span>No</span>
+                            </div>
+                            <div style="clear: both;"></div>
+                            <div class="errbox"><label for="ACCEPT_MATCH" class="error" style="display: none;">Please select yes or no.</label></div>
                         </div>
                     </div>
                 </div>
@@ -666,7 +700,7 @@
                                 <option value="TP1">Buying in 2 to 3 Months</option>
                                 <option value="TP2">Buying in 3 to 6 Months</option>
                                 <option value="TP3">Buying in 30 Days</option>
-                                <option value="TP4">Buying in 6  Months</option>
+                                <option value="TP4">Buying in 6 to 12 Months</option>
                                 <option value="CS1">Offer Pending / Found a House</option>
                                 <option value="CS4">Researching options</option>
                                 <option value="CS5">Signed a Purchase Agreement</option>
@@ -828,11 +862,11 @@
                   <input type="hidden" id="PRODUCT"    name="PRODUCT"    value="<?php echo htmlentities($org_product); ?>" />
                   <input type="hidden" id="CRED_GRADE" name="CRED_GRADE" value="<?php echo htmlentities($org_cred); ?>" />
 
-                  <input type="hidden" id="PROP_DESC"  name="PROP_DESC"  value="<?php echo htmlentities($org_propdesc); ?>" />
+                  <input type="hidden" id="PROP_DESC"  name="PROP_DESC" data-preload="<?php echo htmlentities($org_propdesc); ?>" value="" />
                   <input type="hidden" id="EST_VAL"    name="EST_VAL"  data-preload="<?php echo htmlentities($org_estval); ?>" value="" />
                   <input type="hidden" id="BAL_ONE"    name="BAL_ONE"  data-preload="<?php echo htmlentities($org_loanval); ?>" value="" />
                   <input type="hidden" id="VA_STATUS"  name="VA_STATUS"  value="<?php echo htmlentities($org_vastatus); ?>" />
-                  <input type="hidden" id="SPEC_HOME" name="SPEC_HOME"  value="" />
+                  <input type="hidden" id="SPEC_HOME" name="SPEC_HOME" data-preload="<?php echo htmlentities($org_spechome); ?>" value="" />
                   <input type="hidden" id="SELF_EMPLOYED" name="SELF_EMPLOYED" value="<?php echo htmlentities($org_employed); ?>" />
 
                   <input type="hidden" id="SERIOUS" name="SERIOUS"  value="<?php echo htmlentities(($STARTING_STEP > 0) ? 'SERIOUS' : ''); ?>" />
@@ -841,7 +875,9 @@
                   <input type="hidden" id="COSTCO_MEMBER" name="COSTCO_MEMBER" value="no" />
 
                   <?php /** OTHER LT FIELDS **/ ?>
-                  <input type="hidden" id="AGENT_FOUND" name="AGENT_FOUND"  value="" />
+                  <input type="hidden" id="AGENT_FOUND" name="AGENT_FOUND" data-preload="<?php echo htmlentities($org_agentfound); ?>" value="" />
+                  <input type="hidden" id="ACCEPT_MATCH" name="ACCEPT_MATCH" data-preload="<?php echo htmlentities($org_acceptmatch); ?>" value="" />
+                  <input type="hidden" id="MATCH_TOKEN" name="MATCH_TOKEN" data-preload="<?php echo htmlentities($org_matchtoken); ?>" value="" />
                   <input type="hidden" id="LTHP" name="LTHP"  value="0" />
                   <input type="hidden" id="LTHPSCORE" name="LTHPSCORE"  value="0" />
 
