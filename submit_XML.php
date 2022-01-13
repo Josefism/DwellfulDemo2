@@ -64,7 +64,6 @@
         $wp_score = wp_GetVerifyScore($_POST);
     }
 
-
     //build raw post string for reporting API
     $pstVars = '';
     foreach($_POST as $key=>$value) {
@@ -354,7 +353,6 @@ $ip_score = 100; $wp_score = 100;
         //dump out the log
         echo $submitLog . "-->";
 
-
     	if( (!($xml->status == 'Error')) || $bisManual)
     	{
     	    //This lead is good enough to pass on to the TY page.
@@ -490,8 +488,6 @@ $ip_score = 100; $wp_score = 100;
     	        <?php
 
     	    } else {
-
-                //this is invalid, so we want to show the field correction screen
                 //this is invalid, so we want to show the field correction screen
                 // ***** BEGIN FIELD CORRECTION SCREEN
                 ?>
