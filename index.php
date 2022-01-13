@@ -675,7 +675,6 @@
                 </div>
                 <?php /* END LT ONLY HOST AND POST FIELDS */ ?>
 
-
                 <div id="nh3" style="display:none;">
                     <div class="form_ob">
                         <div class="form_text">Have you found a home?<span>(select one)</span></div>
@@ -878,6 +877,7 @@
                   <input type="hidden" id="AGENT_FOUND" name="AGENT_FOUND" data-preload="<?php echo htmlentities($org_agentfound); ?>" value="" />
                   <input type="hidden" id="ACCEPT_MATCH" name="ACCEPT_MATCH" data-preload="<?php echo htmlentities($org_acceptmatch); ?>" value="" />
                   <input type="hidden" id="MATCH_TOKEN" name="MATCH_TOKEN" data-preload="<?php echo htmlentities($org_matchtoken); ?>" value="" />
+                  <input type="hidden" id="ACCEPT_MATCH_RESPONSE" name="ACCEPT_MATCH_RESPONSE" value="" />
                   <input type="hidden" id="LTHP" name="LTHP"  value="0" />
                   <input type="hidden" id="LTHPSCORE" name="LTHPSCORE"  value="0" />
 
@@ -887,7 +887,7 @@
                      $aid = (($ppcid == "8") ? "30955" : "30551");
                   ?>
                   <input type="hidden" value="<?php echo $aid; ?>" name="AID" />
-                  <input type="hidden" name="IP_ADDRESS" value="<?php echo urlencode(getIP()); ?>" />
+                  <input type="hidden" name="IP_ADDRESS" id="IP_ADDRESS" value="<?php echo urlencode(getIP()); ?>" />
 
                   <?php /* BEGIN Hard coded fields */ ?>
                   <input type="hidden" name="LOAN_TYPE" value="Fixed" />

@@ -539,6 +539,7 @@ function queryDwellful(method) {
 
         // Use the IP address and ZIP to create an internal ref ID for matches from the current user
         var rawIP = $('#IP_ADDRESS').val();
+        console.log("IP: " + rawIP);
         var rawZIP = $('#PROP_ZIP').val();
         var refId = rawIP.replace( /[^\d]/g, '' ) + "_" + rawZIP;
 
@@ -581,9 +582,9 @@ function queryDwellful(method) {
                     $("#matchresult").addClass("ready");    
                 }
                 if (method == "accept") {
-                    var acceptResult = (response["success"] == true) ? "Successfully Accepted Match. " : "Match Acceptance Failed. Error: ";
+                    var acceptResult = (response["success"] == "true") ? "Successfully Accepted Match. " : "Match Acceptance Failed. Error: ";
                     acceptResult += response["message"];
-                    console.log(acceptResult);
+                    $("#ACCEPT_MATCH_RESPONSE").val(acceptResult);
                 }
             },
             error: function(err) {
