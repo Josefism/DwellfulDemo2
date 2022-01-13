@@ -443,7 +443,7 @@ function AddHandlers()
     $('#afno').click(function() {
         $('#AGENT_FOUND').val('no');
         toggleSelectedBtn(['afno','afyes'],'afno');
-        queryDwellful();
+        queryDwellful("request");
         setTimeout(function() {
             if (!$('#matchresult').hasClass('ready')) {
                 continue_form(true);
@@ -505,9 +505,18 @@ function AddHandlers()
       $('#DOB').val(formatBirthday());
       UpdateElementStatus('DOB');
     });
+    $('#finishbtn').click(function() {
+        if ($('#ACCEPT_MATCH').val() == "yes") {
+            queryDwellful("accept");
+        }
+        setTimeout(function() {
+            continue_form(true);
+            return false;   
+        }, 1000);
+    });
 }
 
-function queryDwellful() {
+function queryDwellful(method) {
         // Translate property description into allowable strings, default to "Other"
         // TODO: Current page offers Condo/Townhome as single choice, but API accepts "Condo" or "Townhome", using Condo for now
         var rawPropType = $('#PROP_DESC').val();
@@ -524,13 +533,39 @@ function queryDwellful() {
         if (rawTimeline == "TP2") { timeline = "Within%203-6%20Months"; }
         if (rawTimeline == "TP4") { timeline = "Within%206-12%20Months"; }
 
+        // Translate credit grade to correct space char to %20
+        var rawCredit = $('#CRED_GRADE').val();
+        var credit = (rawCredit == "VERY GOOD") ? "VERY%20GOOD" : rawCredit;
+
+        // Use the IP address and ZIP to create an internal ref ID for matches from the current user
+        var rawIP = $('#IP_ADDRESS').val();
+        var rawZIP = $('#PROP_ZIP').val();
+        var refId = rawIP.replace( /[^\d]/g, '' ) + "_" + rawZIP;
+
+        // Default to Request method
+        var reqTarget = "callDwellfulQuery.php";
+
+        // Build the request data serialized string for Request method
         var reqData = "purchasePriceField="+$('#EST_VAL').val();
         reqData += "&hasAgentField=false&propertyLocationField="+$('#PROP_ZIP').val();
         reqData += "&propertyTypeField="+propType;
         reqData += "&timelineField="+timeline;
+        reqData += "&refIdField="+refId;
+
+        // Add additional parameters needed for Accept method, and change target url
+        if (method == "accept") {
+            reqTarget = "callDwellfulAccept.php";
+            reqData += "&fnameField="+$('#FNAME').val();
+            reqData += "&lnameField="+$('#LNAME').val();
+            reqData += "&emailField="+$('#EMAIL').val();
+            reqData += "&phoneField="+$('#PRI_PHONE').val();
+            reqData += "&matchTokenField="+$('#MATCH_TOKEN').val();
+            reqData += "&downPaymentField="+$('#DOWN_PMT').val();
+            reqData += "&creditField="+credit;
+        }
 
         $.ajax({
-            url: "callDwellfulQuery.php",
+            url: reqTarget,
             method: "POST",
             data: reqData,
             dataType: "json",
@@ -544,6 +579,11 @@ function queryDwellful() {
                     $("#MATCH_TOKEN").val(response["match_token"]);
                     $("#matchresult").removeClass("not_ready");
                     $("#matchresult").addClass("ready");    
+                }
+                if (method == "accept") {
+                    var acceptResult = (response["success"] == true) ? "Successfully Accepted Match. " : "Match Acceptance Failed. Error: ";
+                    acceptResult += response["message"];
+                    console.log(acceptResult);
                 }
             },
             error: function(err) {

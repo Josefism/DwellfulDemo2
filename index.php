@@ -738,7 +738,7 @@
 
                             <div id="laststeplbl">By clicking the button below, you acknowledge, consent, and agree to our terms at the bottom of this page</div>
 
-                            <a href="#" id="finishbtn" class="finishbtn" onclick="continue_form(true); return false;"><span>View my rates &nbsp;&gt;</span></a>
+                            <a href="#" id="finishbtn" class="finishbtn"><span>View my rates &nbsp;&gt;</span></a>
                             <div  id="finishspinner" class="regCtrlWaiting hidden"><div class="loader"></div>Please wait...</div>
 
                             <div id="laststeptxt"><div id="finaldisclaimer"><label style="font-size: 1em;"><input type="hidden" id="leadid_tcpa_disclosure"/><?php include_once '../common/peklava-boberdoo-tcpa.php'; ?></label></div></div>
